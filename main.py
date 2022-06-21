@@ -6,7 +6,6 @@ from pydub import AudioSegment
 import numpy as np
 import cv2
 import os
-import glob
 import re
 
 
@@ -15,7 +14,9 @@ def natural_key(string_):
     return [int(s) if s.isdigit() else s for s in re.split(r'(\d+)', string_)]
 
 
-def plot_frame(xcoords, arr, loopcount, folder, greenlines, redlines, frame_rate):
+def plot_frame(xcoords, arr, loopcount, folder, lines, frame_rate):
+    greenlines = lines["greenlines"]
+    redlines = lines["redlines"]
     
     if len(greenlines) == 0:
         sound = 0
@@ -85,7 +86,7 @@ def insertion_sort(arr, folder, frame_rate):
 		p = i
 		while p > -1:
 			loopcount += 1
-			plot_frame(xcoords, arr, loopcount, folder, [p, p + 1], [], frame_rate)
+			plot_frame(xcoords, arr, loopcount, folder, {"greenlines":[p, p + 1], "redlines":[]}, frame_rate)
 			if arr[p+1] < arr[p]:
 				temp = arr[p]
 				arr[p] = arr[p + 1]
@@ -93,7 +94,6 @@ def insertion_sort(arr, folder, frame_rate):
 				p = p - 1
 			else:
 				break
-	return sounds
 
 def bogo_sort(arr, folder, frame_rate):
     arr_sorted = False
@@ -105,11 +105,11 @@ def bogo_sort(arr, folder, frame_rate):
         shuffle(arr)
         for x in range(len(arr)-1):
             if arr[x] > arr[x+1]:
-                plot_frame(xcoords, arr, loopcount, folder, [x, x+1],[], frame_rate)
+                plot_frame(xcoords, arr, loopcount, folder, {"greenlines":[x, x+1], "redlines":[]}, frame_rate)
                 arr_sorted = False
                 break
             else:
-                plot_frame(xcoords, arr, loopcount, folder, [],[], frame_rate)
+                plot_frame(xcoords, arr, loopcount, folder, {"greenlines":[], "redlines":[]}, frame_rate)
                 arr_sorted = True
 
 
@@ -123,11 +123,11 @@ def bubble_sort(arr, folder, frame_rate):
         swapped = False
         for x in range(len(arr)-1):
             loopcount += 1
-            plot_frame(xcoords, arr, loopcount, folder, [x+1],[], frame_rate)
+            plot_frame(xcoords, arr, loopcount, folder, {"greenlines":[x+1], "redlines":[]}, frame_rate)
             if arr[x] > arr[x+1]:
                 arr[x],arr[x+1], swapped = arr[x+1], arr[x], True
     loopcount += 1
-    plot_frame(xcoords, arr, loopcount, folder, [],[], frame_rate)
+    plot_frame(xcoords, arr, loopcount, folder, {"greenlines":[], "redlines":[]}, frame_rate)
 
 def swapPositions(lis, pos1, pos2):
     lis[pos1], lis[pos2] = lis[pos2], lis[pos1]
@@ -143,14 +143,14 @@ def selection_sort(arr, folder, frame_rate):
             loopcount += 1
             if arr[x:][y] < lowest:
                 lowest = arr[x:][y]
-            plot_frame(xcoords, arr, loopcount, folder, [x, y], [arr.index(lowest)], frame_rate)
+            plot_frame(xcoords, arr, loopcount, folder, {"greenlines":[arr.index(arr[x:][y]),x], "redlines":[arr.index(lowest)]}, frame_rate)
             
         
         lowest = min(arr[x:])
         swapPositions(arr, x, arr.index(lowest))
         
         
-    plot_frame(xcoords, arr, loopcount, folder, [], [], frame_rate)
+    plot_frame(xcoords, arr, loopcount, folder, {"greenlines":[], "redlines":[]}, frame_rate)
 
 xcoords = [x for x in range(1,100)]
 arr = [x for x in range(1,100)]
@@ -169,6 +169,6 @@ shuffle(arr)
 # render_video("bogo.mp4", "bogo_frames", 15)
 # render_audio("bogo.wav", "sounds_bogo_frames", "bogo.mp4")
 
-selection_sort(arr, "selection_frames", 15)
-render_video("selection.mp4", "selection_frames", 15)
+selection_sort(arr, "selection_frames", 30)
+render_video("selection.mp4", "selection_frames", 30)
 render_audio("selection.wav", "sounds_selection_frames", "selection.mp4")
